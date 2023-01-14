@@ -20,9 +20,9 @@ export class AppIntercepter extends ClassSerializerInterceptor {
 
         // 如果响应数据是数组，则遍历每一项进行序列化
         if (isArray(response)) {
-            return (response as PlainLiteralObject[]).map((item) => {
-                !isObject(item) ? item : this.transformToPlain(item, options);
-            });
+            return (response as PlainLiteralObject[]).map((item) =>
+                !isObject(item) ? item : this.transformToPlain(item, options),
+            );
         }
 
         // 如果是分页数据，则对 items 中的每一项进行序列化
