@@ -107,7 +107,7 @@ export class PostService {
                 return qb.orderBy('post.customOrder', 'DESC');
             default:
                 return qb
-                    .orderBy('post.craetedAt', 'DESC')
+                    .orderBy('post.createdAt', 'DESC')
                     .addOrderBy('post.updatedAt', 'DESC')
                     .addOrderBy('post.publishedAt', 'DESC');
         }
