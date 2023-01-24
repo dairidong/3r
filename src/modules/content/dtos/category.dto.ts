@@ -12,11 +12,13 @@ import {
 } from 'class-validator';
 import { toNumber } from 'lodash';
 
+import { DtoValidation } from '@/modules/core/decorators';
 import { PaginateOptions } from '@/modules/database/types';
 
 /**
  * 分类分页查询验证
  */
+@DtoValidation({ type: 'query' })
 export class QueryCategoryDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '当前页必须大于1' })
@@ -34,6 +36,7 @@ export class QueryCategoryDto implements PaginateOptions {
 /**
  * 新增分类验证
  */
+@DtoValidation({ groups: ['create'] })
 export class CreateCategoryDto {
     @MaxLength(25, {
         always: true,
@@ -59,6 +62,7 @@ export class CreateCategoryDto {
 /**
  * 更新分类验证
  */
+@DtoValidation({ groups: ['update'] })
 export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
     @IsUUID(undefined, { groups: ['update'], message: '分类 ID 格式错误' })
     @IsDefined({ groups: ['update'], message: '分类 ID 必须指定' })
