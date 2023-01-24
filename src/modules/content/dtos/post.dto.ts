@@ -48,6 +48,10 @@ export class QueryPostDto implements PaginateOptions {
     @IsNumber()
     @IsOptional()
     limit = 10;
+
+    @IsUUID(undefined, { message: '分类 ID 格式错误' })
+    @IsOptional()
+    category?: string;
 }
 
 /**
@@ -100,6 +104,14 @@ export class CreatePostDto {
     @IsNumber(undefined, { always: true })
     @IsOptional({ always: true })
     customOrder = 0;
+
+    @IsUUID(undefined, {
+        each: true,
+        always: true,
+        message: '分类 ID 格式不正确',
+    })
+    @IsOptional({ always: true })
+    categories?: string[];
 }
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {

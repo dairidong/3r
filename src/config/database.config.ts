@@ -1,13 +1,13 @@
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export const database = (): TypeOrmModuleOptions => ({
     charset: 'utf8mb4',
-    logging: ['error'],
+    logging: ['query', 'error'],
     type: 'mysql',
     host: '127.0.0.1',
-    username:'root',
+    username: 'root',
     password: 'root',
     database: '3r',
     synchronize: true,
     autoLoadEntities: true,
-})
+});

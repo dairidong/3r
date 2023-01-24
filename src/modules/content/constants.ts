@@ -13,5 +13,6 @@ export enum PostOrderType {
     CREATED = 'createdAt',
     UPDATED = 'updatedAt',
     PUBLISHED = 'publishedAt',
+    COMMENT_COUNT = 'commentCount',
     CUSTOM = 'custom',
 }
