@@ -70,6 +70,7 @@ export class CategoryService {
             cat.parent = parent;
             await this.repository.save(cat);
         }
+        return cat;
     }
 
     /**

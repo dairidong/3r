@@ -13,7 +13,7 @@ export class AppFilter<T = Error> extends BaseExceptionFilter<T> {
 
     catch(exception: T, host: ArgumentsHost) {
         const applicationRef =
-            this.applicationRef || (this.httpAdapterHost && this.httpAdapterHost.httpAdapter);
+            this.applicationRef || (this.httpAdapterHost && this.httpAdapterHost.httpAdapter)!;
         // 是否在自定义的异常处理类列表中
         const resException = this.resExceptions.find((item) =>
             'class' in item ? exception instanceof item.class : exception instanceof item,

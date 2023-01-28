@@ -14,13 +14,19 @@ import {
 import { toNumber } from 'lodash';
 
 import { DtoValidation } from '@/modules/core/decorators';
+import { IsDataExist } from '@/modules/database/constraints';
 import { PaginateOptions } from '@/modules/database/types';
+
+import { CommentEntity, PostEntity } from '../entities';
 
 /**
  * 评论分页查询验证
  */
 @DtoValidation({ type: 'query' })
 export class QueryCommentDto implements PaginateOptions {
+    @IsDataExist(PostEntity, {
+        message: '所属文章不存在',
+    })
     @IsUUID(undefined, { message: '分类 ID 格式错误' })
     @IsOptional()
     post?: string;
@@ -53,10 +59,12 @@ export class CreateCommentDto {
     @IsNotEmpty({ message: '评论内容不能为空' })
     body!: string;
 
+    @IsDataExist(PostEntity, { message: '指定文章不存在' })
     @IsUUID(undefined, { message: '文章 ID 格式错误' })
     @IsDefined({ message: '评论文章 ID 必须指定' })
     post!: string;
 
+    @IsDataExist(CommentEntity, { message: '父评论不存在' })
     @IsUUID(undefined, { always: true, message: '父评论 ID 格式不正确' })
     @ValidateIf((value) => value.parent !== null && value.parent)
     @IsOptional({ always: true })
