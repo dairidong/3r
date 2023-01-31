@@ -1,7 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './app.module';

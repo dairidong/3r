@@ -1,14 +1,12 @@
 import { isNil } from 'lodash';
 
 /**
- *  用于请求验证中的 boolean 数据转义
+ * 用于请求验证中的boolean数据转义
  * @param value
  */
 export function toBoolean(value?: string | boolean): boolean {
     if (isNil(value)) return false;
-
     if (typeof value === 'boolean') return value;
-
     try {
         return JSON.parse(value.toLowerCase());
     } catch (error) {
@@ -17,7 +15,7 @@ export function toBoolean(value?: string | boolean): boolean {
 }
 
 /**
- * 用于请求验证中转义 null
+ * 用于请求验证中转义null
  * @param value
  */
 export function toNull(value?: string | null): string | null | undefined {

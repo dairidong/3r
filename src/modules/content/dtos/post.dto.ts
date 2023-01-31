@@ -19,6 +19,7 @@ import { isNil, toNumber } from 'lodash';
 
 import { DtoValidation } from '@/modules/core/decorators';
 import { toBoolean } from '@/modules/core/helpers';
+import { SelectTrashMode } from '@/modules/database/constants';
 import { IsDataExist } from '@/modules/database/constraints';
 import { PaginateOptions } from '@/modules/database/types';
 
@@ -59,6 +60,10 @@ export class QueryPostDto implements PaginateOptions {
     @IsUUID(undefined, { message: '分类 ID 格式错误' })
     @IsOptional()
     category?: string;
+
+    @IsEnum(SelectTrashMode)
+    @IsOptional()
+    trashed?: SelectTrashMode;
 }
 
 /**

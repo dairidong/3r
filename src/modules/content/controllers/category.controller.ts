@@ -11,7 +11,12 @@ import {
     SerializeOptions,
 } from '@nestjs/common';
 
-import { CreateCategoryDto, QueryCategoryDto, UpdateCategoryDto } from '../dtos';
+import { DeleteWithTrashDto } from '@/modules/restful/dtos';
+
+import { RestoreDto } from '@/modules/restful/dtos/restore.dto';
+
+import { QueryCategoryDto } from '../dtos';
+import { CreateCategoryDto, QueryCategoryTreeDto, UpdateCategoryDto } from '../dtos/category.dto';
 import { CategoryService } from '../services';
 
 @Controller('categories')
@@ -19,9 +24,9 @@ export class CategoryController {
     constructor(protected service: CategoryService) {}
 
     @Get('tree')
-    @SerializeOptions({ groups: ['category-list'] })
-    async tree() {
-        return this.service.findTrees();
+    @SerializeOptions({ groups: ['category-tree'] })
+    async tree(@Query() options: QueryCategoryTreeDto) {
+        return this.service.findTrees(options);
     }
 
     @Get()
@@ -35,7 +40,10 @@ export class CategoryController {
 
     @Get(':id')
     @SerializeOptions({ groups: ['category-detail'] })
-    async detail(@Param('id', new ParseUUIDPipe()) id: string) {
+    async detail(
+        @Param('id', new ParseUUIDPipe())
+        id: string,
+    ) {
         return this.service.detail(id);
     }
 
@@ -57,9 +65,23 @@ export class CategoryController {
         return this.service.update(data);
     }
 
-    @Delete(':id')
-    @SerializeOptions({ groups: ['category-detail'] })
-    async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-        return this.service.delete(id);
+    @Delete()
+    @SerializeOptions({ groups: ['category-list'] })
+    async delete(
+        @Body()
+        data: DeleteWithTrashDto,
+    ) {
+        const { ids, trash } = data;
+        return this.service.delete(ids, trash);
+    }
+
+    @Patch('restore')
+    @SerializeOptions({ groups: ['category-list'] })
+    async restore(
+        @Body()
+        data: RestoreDto,
+    ) {
+        const { ids } = data;
+        return this.service.restore(ids);
     }
 }

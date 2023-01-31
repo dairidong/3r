@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { isArray, isFunction, isNil, omit } from 'lodash';
 import { EntityNotFoundError, In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 
+import { SelectTrashMode } from '@/modules/database/constants';
 import { paginate } from '@/modules/database/helpers';
 import { QueryHook } from '@/modules/database/types';
 
@@ -89,11 +90,43 @@ export class PostService {
 
     /**
      * 删除文章
-     * @param id
+     * @param ids
+     * @param trash
      */
-    async delete(id: string) {
-        const item = await this.repository.findOneByOrFail({ id });
-        return this.repository.remove(item);
+    async delete(ids: string[], trash?: boolean) {
+        const items = await this.repository.find({
+            where: { id: In(ids) },
+            withDeleted: true,
+        });
+        if (trash) {
+            // 对已软删除的数据再次删除时，通过 remove 方法从数据库中清除
+            const directs = items.filter((item) => !isNil(item.deletedAt));
+            const softs = items.filter((item) => isNil(item.deletedAt));
+            return [
+                ...(await this.repository.remove(directs)),
+                ...(await this.repository.softRemove(softs)),
+            ];
+        }
+        return this.repository.remove(items);
+    }
+
+    /**
+     * 恢复文章
+     * @param ids
+     */
+    async restore(ids: string[]) {
+        const items = await this.repository.find({
+            where: { id: In(ids) },
+            withDeleted: true,
+        });
+        // 过滤掉不在回收站中的数据
+        const trashes = items.filter((item) => !isNil(item)).map((item) => item.id);
+        if (trashes.length < 0) return [];
+        await this.repository.restore(trashes);
+        const qb = await this.buildListQuery(this.repository.buildBaseQB(), {}, async (qbuilder) =>
+            qbuilder.andWhereInIds(trashes),
+        );
+        return qb.getMany();
     }
 
     /**
@@ -107,19 +140,22 @@ export class PostService {
         options: FindParams,
         callback?: QueryHook<PostEntity>,
     ) {
-        const { category, orderBy, isPublished } = options;
-        let newQb = qb;
+        const { category, orderBy, isPublished, trashed = SelectTrashMode.NONE } = options;
+        if (trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY) {
+            qb.withDeleted();
+            if (trashed === SelectTrashMode.ONLY) qb.where(`post.deletedAt is not null`);
+        }
         if (typeof isPublished === 'boolean') {
-            newQb = isPublished
-                ? newQb.where({ publishedAt: Not(IsNull()) })
-                : newQb.where({ publishedAt: IsNull() });
+            isPublished
+                ? qb.where({ publishedAt: Not(IsNull()) })
+                : qb.where({ publishedAt: IsNull() });
         }
-        newQb = this.queryOrderBy(newQb, orderBy);
+        this.queryOrderBy(qb, orderBy);
         if (category) {
-            newQb = await this.queryByCategory(category, newQb);
+            await this.queryByCategory(category, qb);
         }
-        if (callback) return callback(newQb);
-        return newQb;
+        if (callback) return callback(qb);
+        return qb;
     }
 
     /**

@@ -76,17 +76,17 @@ function IsDataExist(
  */
 function IsDataExist(
     condition: ObjectType<any> | Condition,
-    validationOptions: ValidationOptions,
+    validationOptions?: ValidationOptions,
 ): (object: Record<string, any>, propertyName: string) => void {
-    return (object: Record<string, any>, propertyName: string) => [
+    return (object: Record<string, any>, propertyName: string) => {
         registerDecorator({
             target: object.constructor,
             propertyName,
             options: validationOptions,
             constraints: [condition],
             validator: DataExistsConstraint,
-        }),
-    ];
+        });
+    };
 }
 
 export { IsDataExist };
